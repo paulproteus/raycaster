@@ -5,12 +5,9 @@ use core::{arch::wasm32, panic::PanicInfo};
 const GAMEPAD1: *const u8 = 0x16 as *const u8;
 
 const BUTTON_LEFT: u8 = 1 << 4;
-// 00010000
-const BUTTON_RIGHT: u8 = 32;
-// 00100000
-const BUTTON_UP: u8 = 64;
-// 01000000
-const BUTTON_DOWN: u8 = 128; // 10000000
+const BUTTON_RIGHT: u8 = 1 << 5;
+const BUTTON_UP: u8 = 1 << 6;
+const BUTTON_DOWN: u8 = 1 << 7;
 
 extern "C" {
     fn vline(x: i32, y: i32, len: u32);
@@ -39,7 +36,7 @@ const MAP: [u16; 8] = [
     0b1111111111111111,
 ];
 
-/// Check if the map contains a wall wat a point.
+/// Check if the map contains a wall at a point.
 fn point_in_wall(x: f32, y: f32) -> bool {
     match MAP.get(y as usize) {
         Some(line) => (line & (0b1 << x as usize) != 0),
