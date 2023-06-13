@@ -44,6 +44,13 @@ fn point_in_wall(x: f32, y: f32) -> bool {
     }
 }
 
+fn move_unless_into_wall(&mut state: &mut State, x: f32, y: f32) {
+    if point_in_wall(x, y) {
+        return;
+    }
+    (state.player_x, state.player_y) = (x, y);
+}
+
 struct State {
     player_x: f32,
     player_y: f32,
@@ -61,30 +68,29 @@ const STEP_SIZE: f32 = 0.045;
 impl State {
     /// move the character
     pub fn update(&mut self, up: bool, down: bool, left: bool, right: bool) {
-        // store our current position in case we might need it later
-        let previous_position = (self.player_x, self.player_y);
+        let rotate_direction =
+            if left {
+                1
+            } else if right {
+                -1
+            } else {
+                0
+            };
+        self.player_angle += (STEP_SIZE * rotate_direction);
 
-        if up {
-            self.player_x += cosf(self.player.angle) * STEP_SIZE;
-            self.player_x += -sinf(self.player_angle) * STEP_SIZE;
+        let move_direction =
+            if up {
+                1
+            } else if down {
+                -1
+            } else {
+                0
+            };
+        let x = self.player_x + cosf(self.player.angle) * STEP_SIZE * move_direction;
+        let y = self.player_y + sinf(self.player_angle) * STEP_SIZE * move_direction;
+        if point_in_wall(x, y) {
+            return;
         }
-
-        if down {
-            self.player_x -= cosf(self.player_angle) * STEP_SIZE;
-            self.player_y -= sinf(self.player_angle) * STEP_SIZE;
-        }
-
-        if left {
-            self.player_angle += STEP_SIZE;
-        }
-
-        if right {
-            self.player_angle -= STEP_SIZE;
-        }
-
-        // if we hit a wall, revert
-        if point_in_wall(self.player_x, self.player_y) {
-            (self.player_x, self.player_y) = previous_position;
-        }
+        (state.player_x, state.player_y) = (x, y);
     }
 }
